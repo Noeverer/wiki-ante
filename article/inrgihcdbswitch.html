@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+<link rel="stylesheet" href="/_assets/main.css" />
+
+    <title>inrgihc/dbswitch - Ante</title>
+  </head>
+  <body>
+    <div class="main">
+      <nav class="navigation">
+        <a href="/">Ante</a>
+      </nav>
+      <article>
+        <header>
+          <h1 class="article-title">inrgihc/dbswitch</h1>
+          <div class="article-info">
+            <div>
+              <span
+                >Created At：<time datetime="1688553743089"
+                  >2023-07-05 18:42</time
+                ></span
+              >
+              <span
+                >Updated At：<time datetime="1688553743089"
+                  >2023-07-05 18:42</time
+                ></span
+              >
+            </div>
+            
+          </div>
+        </header>
+        <div class="article-content markdown-body"><h2 id="异构数据库数据与结构同步工具"><a id="user-content-异构数据库数据与结构同步工具" class="jop-noMdConv"></a><a title="#%E5%BC%82%E6%9E%84%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E4%B8%8E%E7%BB%93%E6%9E%84%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7" href="#%E5%BC%82%E6%9E%84%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E4%B8%8E%E7%BB%93%E6%9E%84%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7"></a>异构数据库数据与结构同步工具</h2>
+<h2 id="一-工具介绍"><a id="user-content-一工具介绍" class="jop-noMdConv"></a><a title="#%E4%B8%80%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%BB%8D" href="#%E4%B8%80%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%BB%8D"></a>一、工具介绍</h2>
+<h3 id="1-功能描述"><a id="user-content-1功能描述" class="jop-noMdConv"></a><a title="#1%E5%8A%9F%E8%83%BD%E6%8F%8F%E8%BF%B0" href="#1%E5%8A%9F%E8%83%BD%E6%8F%8F%E8%BF%B0"></a>1、功能描述</h3>
+<p>一句话，dbswitch工具提供源端数据库向目的端数据库的<strong>批量</strong>迁移同步功能，支持数据的全量和增量方式同步。包括：</p>
+<ul>
+<li><strong>结构迁移</strong></li>
+</ul>
+<p>支持字段类型、主键信息、建表语句等的转换，并生成建表SQL语句。</p>
+<p>支持基于正则表达式转换的表名与字段名映射转换。</p>
+<ul>
+<li><strong>数据同步</strong>。</li>
+</ul>
+<p>基于JDBC的分批次读取源端数据库数据，并基于insert/copy方式将数据分批次写入目的数据库。</p>
+<p>支持有主键表的 <strong>增量变更同步</strong> （变化数据计算Change Data Calculate）功能(千万级以上数据量的性能尚需在生产环境验证)</p>
+<h3 id="2-功能设计"><a id="user-content-2功能设计" class="jop-noMdConv"></a><a title="#2%E5%8A%9F%E8%83%BD%E8%AE%BE%E8%AE%A1" href="#2%E5%8A%9F%E8%83%BD%E8%AE%BE%E8%AE%A1"></a>2、功能设计</h3>
+<p><img src="/_resources/83e63f5704454dd2ac612187813fed71.png" /></p>
+<h3 id="3-详细功能"><a id="user-content-3详细功能" class="jop-noMdConv"></a><a title="#3%E8%AF%A6%E7%BB%86%E5%8A%9F%E8%83%BD" href="#3%E8%AF%A6%E7%BB%86%E5%8A%9F%E8%83%BD"></a>3、详细功能</h3>
+<ul>
+<li>
+<p>源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为Greenplum/PostgreSQL/HighGo的迁移(<strong>支持绝大多数常规类型字段</strong>)</p>
+</li>
+<li>
+<p>源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为Oracle的迁移(<strong>支持绝大多数常规类型字段</strong>)</p>
+</li>
+<li>
+<p>源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为SQLServer/Sybase的迁移(<strong>字段类型兼容测试中...</strong>)</p>
+</li>
+<li>
+<p>源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为MySQL/MariaDB/GBase8a的迁移(<strong>字段类型兼容测试中...</strong>)</p>
+</li>
+<li>
+<p>源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为DB2的迁移(<strong>字段类型兼容测试中...</strong>)</p>
+</li>
+<li>
+<p>源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为Kingbase8的迁移(<strong>支持绝大多数常规类型字段...</strong>)</p>
+</li>
+<li>
+<p>源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为DM的迁移(<strong>支持绝大多数常规类型字段</strong>)</p>
+</li>
+<li>
+<p>源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为OSCAR的迁移(<strong>支持绝大多数常规类型字段</strong>)</p>
+</li>
+<li>
+<p>源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为SQLite的迁移(<strong>支持部分常规类型字段...</strong>)</p>
+</li>
+</ul>
+<p>** 注:** 目前Hive只支持Hive version 3.x的账号密码方式认证。</p>
+<h3 id="4-结构设计"><a id="user-content-4结构设计" class="jop-noMdConv"></a><a title="#4%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1" href="#4%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1"></a>4、结构设计</h3>
+<ul>
+<li>
+<p>模块结构设计</p>
+<p><img src="/_resources/b367b43b62424ad7879f194842e99c64.png" /></p>
+</li>
+<li>
+<p>模块结构功能</p>
+</li>
+</ul>
+<p><a id="LC1" class="jop-noMdConv"></a>└── dbswitch<br />
+<a id="LC2" class="jop-noMdConv"></a>├── dbswitch-common    // dbswitch通用定义模块<br />
+<a id="LC3" class="jop-noMdConv"></a>├── dbswitch-pgwriter  // PostgreSQL的二进制写入封装模块<br />
+<a id="LC4" class="jop-noMdConv"></a>├── dbswitch-dbwriter  // 数据库的通用批量Insert封装模块<br />
+<a id="LC5" class="jop-noMdConv"></a>├── dbswitch-core      // 数据库元数据抽取与建表结构语句转换模块<br />
+<a id="LC6" class="jop-noMdConv"></a>├── dbswitch-dbcommon  // 数据库操作通用封装模块<br />
+<a id="LC7" class="jop-noMdConv"></a>├── dbswitch-dbchange  // 基于全量比对计算变更（变化量）数据模块<br />
+<a id="LC8" class="jop-noMdConv"></a>├── dbswitch-dbsynch   // 将dbchange模块计算的变更数据同步入库模块<br />
+<a id="LC9" class="jop-noMdConv"></a>├── dbswitch-data      // 工具入口模块，读取配置文件中的参数执行异构迁移同步<br />
+<a id="LC10" class="jop-noMdConv"></a>├── dbswitch-admin     // 在以上模块的基础上引入Quartz的调度服务与接口<br />
+<a id="LC11" class="jop-noMdConv"></a>├── dbswitch-admin-ui  // 基于Vue2的前段WEB交互页面<br />
+<a id="LC12" class="jop-noMdConv"></a>├── package-tool       // 基于maven-assembly-plugin插件的项目打包模块</p>
+<h2 id="二-编译打包"><a id="user-content-二编译打包" class="jop-noMdConv"></a><a title="#%E4%BA%8C%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85" href="#%E4%BA%8C%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85"></a>二、编译打包</h2>
+<p>本工具纯Java语言开发，代码中的依赖全部来自于开源项目。</p>
+<h3 id="1-编译打包"><a id="user-content-1编译打包" class="jop-noMdConv"></a><a title="#1%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85" href="#1%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85"></a>1、编译打包</h3>
+<ul>
+<li>
+<p>环境要求:</p>
+<p><strong>JDK</strong>:&gt;=1.8 （建议用JDK 1.8）</p>
+<p><strong>maven</strong>:&gt;=3.6</p>
+</li>
+</ul>
+<blockquote>
+<p>Maven 仓库默认在国外， 国内使用难免很慢，可以更换为阿里云的仓库。 参考教程： <a title="https://gitee.com/link?target=https%3A%2F%2Fwww.runoob.com%2Fmaven%2Fmaven-repositories.html" href="https://gitee.com/link?target=https%3A%2F%2Fwww.runoob.com%2Fmaven%2Fmaven-repositories.html">配置阿里云的仓库教程</a></p>
+</blockquote>
+<ul>
+<li>编译命令:</li>
+</ul>
+<p><strong>(1) windows下：</strong></p>
+<p><strong>(2) Linux下：</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>git clone <a title="https://gitee.com/inrgihc/dbswitch.git" href="https://gitee.com/inrgihc/dbswitch.git">https://gitee.com/inrgihc/dbswitch.git</a><br />
+<a id="LC2" class="jop-noMdConv"></a>cd dbswitch/<br />
+<a id="LC3" class="jop-noMdConv"></a>sh ./build.sh</p>
+<p><strong>(3) Docker下:</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>git clone <a title="https://gitee.com/inrgihc/dbswitch.git" href="https://gitee.com/inrgihc/dbswitch.git">https://gitee.com/inrgihc/dbswitch.git</a><br />
+<a id="LC2" class="jop-noMdConv"></a>cd dbswitch/<br />
+<a id="LC3" class="jop-noMdConv"></a>sh ./docker-maven-build.sh</p>
+<p><strong>特别注意：</strong> 在Java9及以上版本默认情况下不允许应用程序查看来自JDK的所有类，但在dbswitch中利用反射计算对象的字节大小，所以需要在JVM启动时需要增加如下参数：</p>
+<p><a id="LC1" class="jop-noMdConv"></a>--add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens jdk.zipfs/jdk.nio.zipfs=ALL-UNNAMED</p>
+<h3 id="2-安装部署"><a id="user-content-2安装部署" class="jop-noMdConv"></a><a title="#2%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2" href="#2%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2"></a>2、安装部署</h3>
+<p>(1) 当编译打包命令执行完成后，会在dbswitch/target/目录下生成dbswitch-relase-x.x.x.tar.gz的打包文件，将文件拷贝到已安装JRE的部署机器上解压即可。</p>
+<p>(2) docker容器方式部署：</p>
+<p>假设已经部署好的MySQL数据库地址为192.168.31.57，端口为3306，账号为test，密码为123456</p>
+<p><a id="LC1" class="jop-noMdConv"></a>docker run -d --name dbswitch <br />
+<a id="LC2" class="jop-noMdConv"></a>-e MYSQLDB_HOST=192.168.31.57 <br />
+<a id="LC3" class="jop-noMdConv"></a>-e MYSQLDB_PORT=3306 <br />
+<a id="LC4" class="jop-noMdConv"></a>-e MYSQLDB_USERNAME=test <br />
+<a id="LC5" class="jop-noMdConv"></a>-e MYSQLDB_PASSWORD='123456' <br />
+<a id="LC6" class="jop-noMdConv"></a>-v /tmp:/tmp <br />
+<a id="LC7" class="jop-noMdConv"></a>-p 9088:9088 <br />
+<a id="LC8" class="jop-noMdConv"></a>registry.cn-hangzhou.aliyuncs.com/inrgihc/dbswitch:latest</p>
+<p>(3) 基于docker-compose提供linux联网环境下的<strong>一键安装</strong>，安装命令见 <a title="https://gitee.com/inrgihc/dbswitch/releases" href="https://gitee.com/inrgihc/dbswitch/releases">发行版链接地址</a></p>
+<p>文档详见: <a title="https://gitee.com/inrgihc/dbswitch/blob/master/build-docker/install" href="https://gitee.com/inrgihc/dbswitch/blob/master/build-docker/install">build-docker/install/README.md</a></p>
+<h2 id="三-工具使用"><a id="user-content-三工具使用" class="jop-noMdConv"></a><a title="#%E4%B8%89%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8" href="#%E4%B8%89%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8"></a>三、工具使用</h2>
+<blockquote>
+<p>dbswitch工具提供基于<code>conf/config.yml</code>配置的dbswitch-data模块启动方式和基于<code>conf/application.yml</code>的dbswitch-admin模块的WEB端使用方式；</p>
+</blockquote>
+<h3 id="1-基于confconfigyml配置的dbswitch-data模块启动命令操作方式"><a id="user-content-1基于confconfigyml配置的dbswitch-data模块启动命令操作方式" class="jop-noMdConv"></a><a title="#1%E5%9F%BA%E4%BA%8Econfconfigyml%E9%85%8D%E7%BD%AE%E7%9A%84dbswitch-data%E6%A8%A1%E5%9D%97%E5%90%AF%E5%8A%A8%E5%91%BD%E4%BB%A4%E6%93%8D%E4%BD%9C%E6%96%B9%E5%BC%8F" href="#1%E5%9F%BA%E4%BA%8Econfconfigyml%E9%85%8D%E7%BD%AE%E7%9A%84dbswitch-data%E6%A8%A1%E5%9D%97%E5%90%AF%E5%8A%A8%E5%91%BD%E4%BB%A4%E6%93%8D%E4%BD%9C%E6%96%B9%E5%BC%8F"></a>1、基于conf/config.yml配置的dbswitch-data模块启动命令操作方式</h3>
+<h4 id="1-配置文件"><a id="user-content-1配置文件" class="jop-noMdConv"></a><a title="#1%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6" href="#1%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"></a>(1)、配置文件</h4>
+<p>配置文件信息请见部署包中的：<code>conf/config.yml</code>（注：也同时支持使用<code>conf/config.properties</code>配置文件名的properties格式），示例配置如下：</p>
+<p><a id="LC1" class="jop-noMdConv"></a>dbswitch:<br />
+<a id="LC2" class="jop-noMdConv"></a>source:<br />
+<a id="LC3" class="jop-noMdConv"></a># source database connection information<br />
+<a id="LC4" class="jop-noMdConv"></a>## support multiple source database connection<br />
+<a id="LC5" class="jop-noMdConv"></a>- url: jdbc:oracle:thin:@172.17.2.10:1521:ORCL<br />
+<a id="LC6" class="jop-noMdConv"></a>driver-class-name: 'oracle.jdbc.driver.OracleDriver'<br />
+<a id="LC7" class="jop-noMdConv"></a>driver-path: D:/Workspace/dbswitch/driver/oracle/oracle-12c<br />
+<a id="LC8" class="jop-noMdConv"></a>username: 'system'<br />
+<a id="LC9" class="jop-noMdConv"></a>password: '123456'<br />
+<a id="LC10" class="jop-noMdConv"></a># source database configuration parameters<br />
+<a id="LC11" class="jop-noMdConv"></a>## fetch size for query source database<br />
+<a id="LC12" class="jop-noMdConv"></a>fetch-size: 10000<br />
+<a id="LC13" class="jop-noMdConv"></a>## schema name for query source schemas, separate by ','<br />
+<a id="LC14" class="jop-noMdConv"></a>source-schema: 'TANG'<br />
+<a id="LC15" class="jop-noMdConv"></a>## table type which include or exclude,option: TABLE,VIEW<br />
+<a id="LC16" class="jop-noMdConv"></a>table-type: 'TABLE'<br />
+<a id="LC17" class="jop-noMdConv"></a>## table name include from table lists, separate by ','<br />
+<a id="LC18" class="jop-noMdConv"></a>source-includes: ''<br />
+<a id="LC19" class="jop-noMdConv"></a>## table name exclude from table lists, separate by ','<br />
+<a id="LC20" class="jop-noMdConv"></a>source-excludes: ''<br />
+<a id="LC21" class="jop-noMdConv"></a>## table name convert mapper by regular expression<br />
+<a id="LC22" class="jop-noMdConv"></a>regex-table-mapper:<br />
+<a id="LC23" class="jop-noMdConv"></a>- from-pattern: '^'<br />
+<a id="LC24" class="jop-noMdConv"></a>to-value: 'T_'<br />
+<a id="LC25" class="jop-noMdConv"></a>## columns name convert mapper by regular expression like regex-table-mapper<br />
+<a id="LC26" class="jop-noMdConv"></a>regex-column-mapper:</p>
+<p><a id="LC28" class="jop-noMdConv"></a>target:<br />
+<a id="LC29" class="jop-noMdConv"></a># target database connection information<br />
+<a id="LC30" class="jop-noMdConv"></a>## Best support for Oracle/PostgreSQL/Greenplum/DM(But not is Hive) etc.<br />
+<a id="LC31" class="jop-noMdConv"></a>url: jdbc:postgresql://172.17.2.10:5432/test<br />
+<a id="LC32" class="jop-noMdConv"></a>driver-class-name: org.postgresql.Driver<br />
+<a id="LC33" class="jop-noMdConv"></a>driver-path: D:/Workspace/dbswitch/driver/postgresql/postgresql-11.4<br />
+<a id="LC34" class="jop-noMdConv"></a>username: test<br />
+<a id="LC35" class="jop-noMdConv"></a>password: 123456<br />
+<a id="LC36" class="jop-noMdConv"></a># target database configuration parameters<br />
+<a id="LC37" class="jop-noMdConv"></a>## schema name for create/insert table data<br />
+<a id="LC38" class="jop-noMdConv"></a>target-schema: public<br />
+<a id="LC39" class="jop-noMdConv"></a>## whether drop-create table when target table exist<br />
+<a id="LC40" class="jop-noMdConv"></a>target-drop: true<br />
+<a id="LC41" class="jop-noMdConv"></a>## whether create table support auto increment for primary key field<br />
+<a id="LC42" class="jop-noMdConv"></a>create-table-auto-increment: false<br />
+<a id="LC43" class="jop-noMdConv"></a>## whether use insert engine to write data for target database<br />
+<a id="LC44" class="jop-noMdConv"></a>## Only useful for PostgreSQL/Greenplum database<br />
+<a id="LC45" class="jop-noMdConv"></a>writer-engine-insert: false<br />
+<a id="LC46" class="jop-noMdConv"></a>## whether use change data synchronize to target database table<br />
+<a id="LC47" class="jop-noMdConv"></a>change-data-sync: true</p>
+<table>
+<thead>
+<tr>
+<th>配置参数</th>
+<th>配置说明</th>
+<th>示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dbswitch.source[i].url</td>
+<td>来源端JDBC连接的URL</td>
+<td>jdbc:oracle:thin:@10.17.1.158:1521:ORCL</td>
+<td>可为：oracle/mysql/mariadb/sqlserver/postgresql/db2/dm/kingbase8/highgo</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].driver-class-name</td>
+<td>来源端数据库的驱动类名称</td>
+<td>oracle.jdbc.driver.OracleDriver</td>
+<td>对应数据库的驱动类</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].driver-path</td>
+<td>来源端数据库的驱动JAR所在目录</td>
+<td>D:/Workspace/dbswitch/driver/oracle/oracle-12c</td>
+<td>对应数据库的驱动JAR所在目录</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].username</td>
+<td>来源端连接帐号名</td>
+<td>test</td>
+<td>无</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].password</td>
+<td>来源端连接帐号密码</td>
+<td>123456</td>
+<td>无</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].fetch-size</td>
+<td>来源端数据库查询时的fetch_size设置</td>
+<td>10000</td>
+<td>需要大于100有效</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].source-schema</td>
+<td>来源端的schema名称</td>
+<td>dbo,test</td>
+<td>多个之间用英文逗号分隔</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].table-type</td>
+<td>来源端表的类型</td>
+<td>TABLE</td>
+<td>可选值为：TABLE、VIEW ,分别代表物理表和试图表</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].source-includes</td>
+<td>来源端schema下的表中需要包含的表名称</td>
+<td>users1,orgs1</td>
+<td>支持多个表（多个之间用英文逗号分隔）；支持支持正则表达式(不能含有逗号)</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].source-excludes</td>
+<td>来源端schema下的表中需要过滤的表名称</td>
+<td>users,orgs</td>
+<td>不包含的表名称，多个之间用英文逗号分隔</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].regex-table-mapper</td>
+<td>基于正则表达式的表名称映射关系</td>
+<td>[{"from-pattern": "^","to-value": "T_"}]</td>
+<td>为list类型，元素存在顺序关系</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].regex-column-mapper</td>
+<td>基于正则表达式的字段名映射关系</td>
+<td>[{"from-pattern": "$","to-value": "_x"}]</td>
+<td>为list类型，元素存在顺序关系</td>
+</tr>
+<tr>
+<td>dbswitch.target.url</td>
+<td>目的端JDBC连接的URL</td>
+<td>jdbc:postgresql://10.17.1.90:5432/study</td>
+<td>可为：oracle/sqlserver/postgresql/greenplum,mysql/mariadb/db2/dm/kingbase8/highgo也支持，但字段类型兼容性问题比较多</td>
+</tr>
+<tr>
+<td>dbswitch.target.driver-class-name</td>
+<td>目的端数据库的驱动类名称</td>
+<td>org.postgresql.Driver</td>
+<td>对应数据库的驱动类</td>
+</tr>
+<tr>
+<td>dbswitch.source[i].driver-path</td>
+<td>目的端数据库的驱动JAR所在目录</td>
+<td>D:/Workspace/dbswitch/driver/postgresql/postgresql-11.4</td>
+<td>对应数据库的驱动JAR所在目录</td>
+</tr>
+<tr>
+<td>dbswitch.target.username</td>
+<td>目的端连接帐号名</td>
+<td>test</td>
+<td>无</td>
+</tr>
+<tr>
+<td>dbswitch.target.password</td>
+<td>目的端连接帐号密码</td>
+<td>123456</td>
+<td>无</td>
+</tr>
+<tr>
+<td>dbswitch.target.target-schema</td>
+<td>目的端的schema名称</td>
+<td>public</td>
+<td>目的端的schema名称只能有且只有一个</td>
+</tr>
+<tr>
+<td>dbswitch.target.target-drop</td>
+<td>是否执行先drop表然后create表命令,当target.datasource-target.drop=true时有效</td>
+<td>true</td>
+<td>可选值为：true、false</td>
+</tr>
+<tr>
+<td>dbswitch.target.create-table-auto-increment</td>
+<td>是否执启用支持create表时主键自增</td>
+<td>true</td>
+<td>可选值为：true、false</td>
+</tr>
+<tr>
+<td>dbswitch.target.writer-engine-insert</td>
+<td>是否使用insert写入数据</td>
+<td>false</td>
+<td>可选值为：true为insert写入、false为copy写入，只针对目的端数据库为PostgreSQL/Greenplum的有效</td>
+</tr>
+<tr>
+<td>dbswitch.target.change-data-sync</td>
+<td>是否启用增量变更同步，dbswitch.target.target-drop为false时且表有主键情况下有效,千万级以上数据量建议设为false</td>
+<td>false</td>
+<td>可选值为：true、false</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong></p>
+<ul>
+<li>
+<p>（1）支持源端为多个数据源类型，如果<code>dbswitch.source[i]</code>为数组类型，i为编号，从0开始的整数；</p>
+</li>
+<li>
+<p>（2）如果<code>dbswitch.source[i].source-includes</code>不为空，则按照包含表的方式来执行；</p>
+</li>
+<li>
+<p>（3）如果<code>dbswitch.source[i].source-includes</code>为空，则按照<code>dbswitch.source[i].source-excludes</code>排除表的方式来执行。</p>
+</li>
+<li>
+<p>（4）如果<code>dbswitch.target.target-drop=false</code>，<code>dbswitch.target.change-data-synch=true</code>；时会对有主键表启用增量变更方式同步</p>
+</li>
+<li>
+<p>（5）对于<code>regex-table-mapper</code>和<code>regex-column-mappe</code>，为基于正则表达式替换的表名映射和字段名映射，均可以为空（代表原名映射，即源的表t_a映射到目的端也为t_a）</p>
+</li>
+</ul>
+<blockquote>
+<p>提示：如果要将源端所有表名(或者字段名)添加前缀，可以配置<code>"from-pattern": "^","to-value": "T_"</code>;</p>
+</blockquote>
+<ul>
+<li>（6）支持的数据库产品及其JDBC驱动连接示例如下：</li>
+</ul>
+<p><strong>MySQL/MariaDB数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:mysql://172.17.2.10:3306/test?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;zeroDateTimeBehavior=convertToNull&amp;serverTimezone=Asia/Shanghai&amp;nullCatalogMeansCurrent=true&amp;tinyInt1isBit=false&amp;rewriteBatchedStatements=true&amp;useCompression=true<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称： com.mysql.jdbc.Driver</p>
+<p>与:</p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:mariadb://172.17.2.10:3306/test?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;zeroDateTimeBehavior=convertToNull&amp;serverTimezone=Asia/Shanghai&amp;nullCatalogMeansCurrent=true&amp;tinyInt1isBit=false&amp;rewriteBatchedStatements=true&amp;useCompression=true<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称： org.mariadb.jdbc.Driver</p>
+<p><strong>Oracle数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:oracle:thin:@172.17.2.10:1521:ORCL  或   jdbc:oracle:thin:@<a title="//172.17.2.10:1521/ORCL" href="//172.17.2.10:1521/ORCL">//172.17.2.10:1521/ORCL</a><br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：oracle.jdbc.driver.OracleDriver</p>
+<p><strong>SQL Server(&gt;=2005)数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:sqlserver://172.17.2.10:1433;DatabaseName=test<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：com.microsoft.sqlserver.jdbc.SQLServerDriver</p>
+<p><strong>Sybase数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:sybase:Tds:172.17.2.10:5000/test?charset=cp936<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：com.sybase.jdbc4.jdbc.SybDriver</p>
+<blockquote>
+<p>JDBC连接Sybase数据库使用中文时只能使用CP936这个字符集</p>
+</blockquote>
+<p><strong>PostgreSQL/Greenplum数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:postgresql://172.17.2.10:5432/test<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：org.postgresql.Driver</p>
+<p><strong>DB2数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:db2://172.17.2.10:50000/testdb:driverType=4;fullyMaterializeLobData=true;fullyMaterializeInputStreams=true;progressiveStreaming=2;progresssiveLocators=2;<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：com.ibm.db2.jcc.DB2Driver</p>
+<p><strong>达梦DMDB数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:dm://172.17.2.10:5236<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：dm.jdbc.driver.DmDriver</p>
+<p><strong>人大金仓Kingbase8数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:kingbase8://172.17.2.10:54321/MYTEST<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：com.kingbase8.Driver</p>
+<p><strong>神通Oscar数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:oscar://172.17.2.10:2003/OSRDB<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：com.oscar.Driver</p>
+<p><strong>南大通用GBase8a数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:gbase://172.17.2.10:5258/gbase<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：com.gbase.jdbc.Driver</p>
+<p><strong>翰高HighGo数据库(可按PostgreSQL使用)</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:postgresql://172.17.2.10:5866/highgo<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：org.postgresql.Driver</p>
+<p><strong>Apache Hive数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:hive2://172.17.2.12:10000/default<br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：org.apache.hive.jdbc.HiveDriver</p>
+<p>注意：当前只支持hive version 3.x的账号密码认证方式。</p>
+<p><strong>SQLite数据库</strong></p>
+<p><a id="LC1" class="jop-noMdConv"></a>jdbc连接地址：jdbc:sqlite:/tmp/test.db   或者  jdbc:sqlite::resource:<a title="http://172.17.2.12:8080/test.db" href="http://172.17.2.12:8080/test.db">http://172.17.2.12:8080/test.db</a><br />
+<a id="LC2" class="jop-noMdConv"></a>jdbc驱动名称：org.sqlite.JDBC</p>
+<p>注意:</p>
+<blockquote>
+<p>(a) 本地文件方式：jdbc:sqlite:/tmp/test.db , 该方式适用于dbswitch为实体机器部署的场景。</p>
+<p>(b) 远程文件方式: jdbc:sqlite::resource:<a title="https://gitee.com/link?target=http%3A%2F%2F172.17.2.12%3A8080%2Ftest.db" href="https://gitee.com/link?target=http%3A%2F%2F172.17.2.12%3A8080%2Ftest.db">http://172.17.2.12:8080/test.db</a> ,该方式适用于容器方式部署的场景, 搭建文件服务器的方法可使 用如下docker方式快速部署(/home/sqlites为服务器上存放sqlite数据库文件的目录)：</p>
+<p><code>docker run -d --name http_file_server -p 8080:8080 -v /home/sqlites:/data inrgihc/http_file_server:latest</code></p>
+<p>说明：远程服务器文件将会被下载到本地System.getProperty("java.io.tmpdir")所指定的目录下(linux为/tmp/，Windows为C:/temp/)，并以 sqlite-jdbc-tmp-{XXX}.db的方式进行文件命名，其中{XXX}为文件网络地址(例如上述为<a title="https://gitee.com/link?target=http%3A%2F%2F192.168.31.57%3A8080%2Ftest.db" href="https://gitee.com/link?target=http%3A%2F%2F192.168.31.57%3A8080%2Ftest.db">http://192.168.31.57:8080/test.db</a>) 的字符串哈希值， 如果本地文件已经存在则不会再次进行下载而是直接使用该文件(当已经下载过文件后，远程服务器即使关闭了，该sqlite的jdbc-url任然可 用，直至本地的sqlite-jdbc-tmp-XXX.db文件被人为手动删除)</p>
+<p>(c) 不支持内存及其他方式;本地文件方式可以作为源端和目的端，而远程服务器方式只能作为源端。</p>
+<p>(d) SQLite为单写多读方式，禁止人为方式造成多写导致锁表。</p>
+</blockquote>
+<h4 id="2-启动方法"><a id="user-content-2启动方法" class="jop-noMdConv"></a><a title="#2%E5%90%AF%E5%8A%A8%E6%96%B9%E6%B3%95" href="#2%E5%90%AF%E5%8A%A8%E6%96%B9%E6%B3%95"></a>(2)、启动方法</h4>
+<ul>
+<li>linux系统下：</li>
+</ul>
+<p><a id="LC1" class="jop-noMdConv"></a>cd dbswitch-release-X.X.X/<br />
+<a id="LC2" class="jop-noMdConv"></a>bin/datasync.sh</p>
+<ul>
+<li>windows系统下：</li>
+</ul>
+<p><a id="LC1" class="jop-noMdConv"></a>切换到dbswitch-release-X.X.X/bin/目录下，双击datasync.cmd脚本文件即可启动</p>
+<h4 id="3-额外说明"><a id="user-content-3额外说明" class="jop-noMdConv"></a><a title="#3%E9%A2%9D%E5%A4%96%E8%AF%B4%E6%98%8E" href="#3%E9%A2%9D%E5%A4%96%E8%AF%B4%E6%98%8E"></a>(3)、额外说明</h4>
+<ul>
+<li>
+<p>1、对于向目的库为PostgreSQL/Greenplum的数据离线同步默认采用copy方式写入数据，说明如下：</p>
+<p><strong>（a）</strong> 如若使用copy方式写入，配置文件中需配置为postgresql的jdbc url和驱动类（不能为greenplum的驱动包），</p>
+<p><strong>（b）</strong> 如若使用insert方式写入，需要在config.properties配置文件中设置如下参数为true:</p>
+</li>
+</ul>
+<p><a id="LC1" class="jop-noMdConv"></a>dbswitch.target.writer-engine-insert=true</p>
+<ul>
+<li>
+<p>2、dbswitch离线同步工具支持的数据类型包括：整型、时间、文本、二进制等常用数据类型;</p>
+</li>
+<li>
+<p>3、Oracle的表虽然设置了主键，如果<strong>主键约束实际为DISABLED状态</strong>，那在进行结构转换时会按照没有此主键处理。</p>
+</li>
+<li>
+<p>4、关于增量变更同步方式的使用说明</p>
+</li>
+</ul>
+<blockquote>
+<p>步骤A：先通过设置<code>dbswitch.target.target-drop=true</code>，<code>dbswitch.target.change-data-sync=false</code>；启动程序进行表结构和数据的全量同步;</p>
+</blockquote>
+<blockquote>
+<p>步骤B：然后设置<code>dbswitch.target.target-drop=false</code>，<code>dbswitch.target.change-data-sync=true</code>；再启动程序对（有主键表）数据进行增量变更同步。</p>
+</blockquote>
+<blockquote>
+<p>注：如果待同步的两端表结构已经一致或源端字段是目的端字段的子集，也可直接用步骤B配置进行变更同步</p>
+</blockquote>
+<h3 id="2-基于confapplicationyml配置的dbswitch-admin模块启动的web使用方式"><a id="user-content-2基于confapplicationyml配置的dbswitch-admin模块启动的web使用方式" class="jop-noMdConv"></a><a title="#2%E5%9F%BA%E4%BA%8Econfapplicationyml%E9%85%8D%E7%BD%AE%E7%9A%84dbswitch-admin%E6%A8%A1%E5%9D%97%E5%90%AF%E5%8A%A8%E7%9A%84web%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F" href="#2%E5%9F%BA%E4%BA%8Econfapplicationyml%E9%85%8D%E7%BD%AE%E7%9A%84dbswitch-admin%E6%A8%A1%E5%9D%97%E5%90%AF%E5%8A%A8%E7%9A%84web%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"></a>2、基于conf/application.yml配置的dbswitch-admin模块启动的WEB使用方式</h3>
+<h4 id="1-准备一个mysql建议版本为-57-或postgresql建议版本117-的数据库"><a id="user-content-1准备一个mysql建议版本为-57-或postgresql建议版本117-的数据库" class="jop-noMdConv"></a><a title="#1%E5%87%86%E5%A4%87%E4%B8%80%E4%B8%AAmysql%E5%BB%BA%E8%AE%AE%E7%89%88%E6%9C%AC%E4%B8%BA-57-%E6%88%96postgresql%E5%BB%BA%E8%AE%AE%E7%89%88%E6%9C%AC117-%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93" href="#1%E5%87%86%E5%A4%87%E4%B8%80%E4%B8%AAmysql%E5%BB%BA%E8%AE%AE%E7%89%88%E6%9C%AC%E4%B8%BA-57-%E6%88%96postgresql%E5%BB%BA%E8%AE%AE%E7%89%88%E6%9C%AC117-%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93"></a>(1)、准备一个MySQL(建议版本为: 5.7+ )或PostgreSQL(建议版本：11.7+ )的数据库</h4>
+<blockquote>
+<p>dbswitch-admin模块后端同时支持MySQL、PostgreSQL作为配置数据库。</p>
+</blockquote>
+<h4 id="2-配置confapplicationymlmysql可参考application_sample_mysqlyml配置postgresql可参考application_sample_postgresqlyml配置"><a id="user-content-2配置confapplicationymlmysql可参考application_sample_mysqlyml配置postgresql可参考application_sample_postgresqlyml配置" class="jop-noMdConv"></a><a title="#2%E9%85%8D%E7%BD%AEconfapplicationymlmysql%E5%8F%AF%E5%8F%82%E8%80%83application_sample_mysqlyml%E9%85%8D%E7%BD%AEpostgresql%E5%8F%AF%E5%8F%82%E8%80%83application_sample_postgresqlyml%E9%85%8D%E7%BD%AE" href="#2%E9%85%8D%E7%BD%AEconfapplicationymlmysql%E5%8F%AF%E5%8F%82%E8%80%83application_sample_mysqlyml%E9%85%8D%E7%BD%AEpostgresql%E5%8F%AF%E5%8F%82%E8%80%83application_sample_postgresqlyml%E9%85%8D%E7%BD%AE"></a>(2)、配置conf/application.yml(MySQL可参考application_sample_mysql.yml配置，PostgreSQL可参考application_sample_postgresql.yml配置)</h4>
+<p>MySQL的application.yml配置内容示例如下：</p>
+<p><a id="LC1" class="jop-noMdConv"></a>server:<br />
+<a id="LC2" class="jop-noMdConv"></a>port: 9088</p>
+<p><a id="LC4" class="jop-noMdConv"></a>spring:<br />
+<a id="LC5" class="jop-noMdConv"></a>application:<br />
+<a id="LC6" class="jop-noMdConv"></a>name: dbswitch-admin<br />
+<a id="LC7" class="jop-noMdConv"></a>tomcat:<br />
+<a id="LC8" class="jop-noMdConv"></a>uri-encoding: UTF-8<br />
+<a id="LC9" class="jop-noMdConv"></a>max-http-header-size: 8096<br />
+<a id="LC10" class="jop-noMdConv"></a>mvc:<br />
+<a id="LC11" class="jop-noMdConv"></a>throw-exception-if-no-handler-found: true<br />
+<a id="LC12" class="jop-noMdConv"></a>static-path-pattern: /statics/**<br />
+<a id="LC13" class="jop-noMdConv"></a>datasource:<br />
+<a id="LC14" class="jop-noMdConv"></a>driver-class-name: com.mysql.jdbc.Driver<br />
+<a id="LC15" class="jop-noMdConv"></a>url: jdbc:mysql://192.168.31.57:3306/dbswitch?createDatabaseIfNotExist=true&amp;useUnicode=true&amp;characterEncoding=UTF8&amp;useSSL=false<br />
+<a id="LC16" class="jop-noMdConv"></a>username: test<br />
+<a id="LC17" class="jop-noMdConv"></a>password: 123456<br />
+<a id="LC18" class="jop-noMdConv"></a>validation-query: SELECT 1<br />
+<a id="LC19" class="jop-noMdConv"></a>test-on-borrow: true<br />
+<a id="LC20" class="jop-noMdConv"></a>flyway:<br />
+<a id="LC21" class="jop-noMdConv"></a>locations: classpath:db/migration<br />
+<a id="LC22" class="jop-noMdConv"></a>baseline-on-migrate: true<br />
+<a id="LC23" class="jop-noMdConv"></a>table: DBSWITCH_SCHEMA_HISTORY<br />
+<a id="LC24" class="jop-noMdConv"></a>enabled: true</p>
+<p><a id="LC26" class="jop-noMdConv"></a>mybatis:<br />
+<a id="LC27" class="jop-noMdConv"></a>configuration:<br />
+<a id="LC28" class="jop-noMdConv"></a>lazy-loading-enabled: true<br />
+<a id="LC29" class="jop-noMdConv"></a>aggressive-lazy-loading: false<br />
+<a id="LC30" class="jop-noMdConv"></a>map-underscore-to-camel-case: true<br />
+<a id="LC31" class="jop-noMdConv"></a>log-impl: org.apache.ibatis.logging.stdout.StdOutImpl</p>
+<p><a id="LC33" class="jop-noMdConv"></a>mapper:<br />
+<a id="LC34" class="jop-noMdConv"></a>wrap-keyword: "<code>{0}</code>"<br />
+<a id="LC35" class="jop-noMdConv"></a>enable-method-annotation: true</p>
+<p><a id="LC37" class="jop-noMdConv"></a>dbswitch:<br />
+<a id="LC38" class="jop-noMdConv"></a>configuration:<br />
+<a id="LC39" class="jop-noMdConv"></a># 驱动JAR文件所在的目录位置<br />
+<a id="LC40" class="jop-noMdConv"></a>drivers-base-path: D:/Workspace/dbswitch/drivers</p>
+<p>按照上述配置，修改<code>conf/application.yml</code>配置文件中的<code>spring.datasource.url</code>和<code>spring.datasource.username</code>及<code>spring.datasource.password</code>及<code>dbswitch.configuration.drivers-base-path</code>四个字段值的配置。</p>
+<h4 id="3-启动dbswitch-admin系统"><a id="user-content-3启动dbswitch-admin系统" class="jop-noMdConv"></a><a title="#3%E5%90%AF%E5%8A%A8dbswitch-admin%E7%B3%BB%E7%BB%9F" href="#3%E5%90%AF%E5%8A%A8dbswitch-admin%E7%B3%BB%E7%BB%9F"></a>(3)、启动dbswitch-admin系统</h4>
+<ul>
+<li>linux系统下：</li>
+</ul>
+<p><a id="LC1" class="jop-noMdConv"></a>cd dbswitch-release-X.X.X/<br />
+<a id="LC2" class="jop-noMdConv"></a>bin/startup.sh</p>
+<ul>
+<li>windows系统下：</li>
+</ul>
+<p><a id="LC1" class="jop-noMdConv"></a>切换到dbswitch-release-X.X.X/bin/目录下，双击startup.cmd脚本文件即可启动</p>
+<h4 id="4-补充说明"><a id="user-content-4补充说明" class="jop-noMdConv"></a><a title="#4%E8%A1%A5%E5%85%85%E8%AF%B4%E6%98%8E" href="#4%E8%A1%A5%E5%85%85%E8%AF%B4%E6%98%8E"></a>(4)、补充说明</h4>
+<ul>
+<li>
+<p>dbswitch-admin的WEB端会根据用户的配置调用dbswitch-data模块执行数据迁移同步；</p>
+</li>
+<li>
+<p>dbswitch-admin服务启动时会基于flyway自动建库建表，需要保证配置的mysql连接账号具有建库建表等权限；</p>
+</li>
+<li>
+<p>WEB系统的访问如下：</p>
+</li>
+</ul>
+<blockquote>
+<p>URL地址: <code>http://127.0.0.1:9088</code> 登陆账号：<code>admin</code> 登陆密码：<code>123456</code></p>
+</blockquote>
+<blockquote>
+<p>Swagger在线接口地址： <a title="https://gitee.com/link?target=http%3A%2F%2F127.0.0.1%3A9088%2Fswagger-ui%2F" href="https://gitee.com/link?target=http%3A%2F%2F127.0.0.1%3A9088%2Fswagger-ui%2F">http://127.0.0.1:9088/swagger-ui/</a></p>
+</blockquote>
+<p>注意：如果为服务器部署时，需要将127.0.0.1替换为服务器的IP地址。</p>
+<ul>
+<li>WEB系统的使用流程为：</li>
+</ul>
+<blockquote>
+<p>建立源端数据库的连接 -&gt; 建立目的断数据库的连接 -&gt; 配置任务 -&gt; 发布任务 -&gt; 手动/系统调度执行任务 -&gt; 查看调度记录 -&gt; 数据目录查看数据结果</p>
+</blockquote>
+<ul>
+<li>WEB系统的部分截图：</li>
+</ul>
+<img width="835" height="472" src="/_resources/5ab9370fc01144849daab742fcd944ca.png" class="jop-noMdConv" />
+<img width="835" height="471" src="/_resources/9c9a2106637f4e5d803e64cb95c8c362.png" class="jop-noMdConv" />
+<img width="835" height="468" src="/_resources/a6b6a66805724c108bae939c70403b7c.png" class="jop-noMdConv" />
+<img width="835" height="429" src="/_resources/03524a24e8544ec286e3f9fe19f1b38a.png" class="jop-noMdConv" />
+<img width="835" height="472" src="/_resources/3c12239abf794639b69ca17e86d1868e.png" class="jop-noMdConv" />
+<img width="835" height="450" src="/_resources/304cadd5fd2844558dcab5eb14324103.png" class="jop-noMdConv" />
+<img width="835" height="450" src="/_resources/bbe4f4117c8b4391b1cd52a9d62a20c6.png" class="jop-noMdConv" />
+<img width="835" height="453" src="/_resources/a5ee466ddb9044c6bc97826963822deb.png" class="jop-noMdConv" />
+<h3 id="3-两种方式的适用场景"><a id="user-content-3两种方式的适用场景" class="jop-noMdConv"></a><a title="#3%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F%E7%9A%84%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF" href="#3%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F%E7%9A%84%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"></a>3、两种方式的适用场景</h3>
+<ul>
+<li>方式一：基于conf/config.yml配置的dbswitch-data模块启动的命令操作方式式</li>
+</ul>
+<p><strong>优点：</strong></p>
+<blockquote>
+<p>当需要配置的表或字段等数量较大时，该方式便于在yml中配置；</p>
+</blockquote>
+<blockquote>
+<p>只需一个配置文件即可进行启动执行任务；</p>
+</blockquote>
+<p><strong>缺点：</strong></p>
+<blockquote>
+<p>只能运行单个任务，任务执行完立即停止；</p>
+</blockquote>
+<blockquote>
+<p>不支持CRON表达式的周期执行；</p>
+</blockquote>
+<ul>
+<li>方式二：基于conf/application.yml配置的dbswitch-admin模块启动的WEB使用方式</li>
+</ul>
+<p><strong>优点：</strong></p>
+<blockquote>
+<p>提供WEB操作来配置（方式一的YAML中的参数）,只需点击即可完成配置；</p>
+</blockquote>
+<blockquote>
+<p>支持多个任务并发执行（在硬件资源足够的条件下）</p>
+</blockquote>
+<blockquote>
+<p>支持CRON表达式的周期执行</p>
+</blockquote>
+<p><strong>缺点：</strong></p>
+<blockquote>
+<p>当数据库内的表或字段数量较大时，WEB方式卡顿严重；</p>
+</blockquote>
+<blockquote>
+<p>多个任务并发执行不易于分析任务错误原因；</p>
+</blockquote>
+<h2 id="四-模块集成开发说明"><a id="user-content-四模块集成开发说明" class="jop-noMdConv"></a><a title="#%E5%9B%9B%E6%A8%A1%E5%9D%97%E9%9B%86%E6%88%90%E5%BC%80%E5%8F%91%E8%AF%B4%E6%98%8E" href="#%E5%9B%9B%E6%A8%A1%E5%9D%97%E9%9B%86%E6%88%90%E5%BC%80%E5%8F%91%E8%AF%B4%E6%98%8E"></a>四、模块集成开发说明</h2>
+<h3 id="1-dbswitch安装到本地仓库"><a id="user-content-1dbswitch安装到本地仓库" class="jop-noMdConv"></a><a title="#1dbswitch%E5%AE%89%E8%A3%85%E5%88%B0%E6%9C%AC%E5%9C%B0%E4%BB%93%E5%BA%93" href="#1dbswitch%E5%AE%89%E8%A3%85%E5%88%B0%E6%9C%AC%E5%9C%B0%E4%BB%93%E5%BA%93"></a>1、dbswitch安装到本地仓库</h3>
+<p><a id="LC1" class="jop-noMdConv"></a>cd dbswitch &amp;&amp; mvn clean install</p>
+<h3 id="2-pomxml中引入dbswitch模块依赖"><a id="user-content-2pomxml中引入dbswitch模块依赖" class="jop-noMdConv"></a><a title="#2pomxml%E4%B8%AD%E5%BC%95%E5%85%A5dbswitch%E6%A8%A1%E5%9D%97%E4%BE%9D%E8%B5%96" href="#2pomxml%E4%B8%AD%E5%BC%95%E5%85%A5dbswitch%E6%A8%A1%E5%9D%97%E4%BE%9D%E8%B5%96"></a>2、pom.xml中引入dbswitch模块依赖</h3>
+<p><a id="LC1" class="jop-noMdConv"></a>&lt;dependency&gt;<br />
+<a id="LC2" class="jop-noMdConv"></a>&lt;groupId&gt;com.gitee.dbswitch&lt;/groupId&gt;<br />
+<a id="LC3" class="jop-noMdConv"></a>&lt;artifactId&gt;dbswitch-data&lt;/artifactId&gt;<br />
+<a id="LC4" class="jop-noMdConv"></a>&lt;version&gt;${dbswitch.version}&lt;/version&gt;<br />
+<a id="LC5" class="jop-noMdConv"></a>&lt;/dependency&gt;</p>
+<h3 id="3-代码集成开发"><a id="user-content-3代码集成开发" class="jop-noMdConv"></a><a title="#3%E4%BB%A3%E7%A0%81%E9%9B%86%E6%88%90%E5%BC%80%E5%8F%91" href="#3%E4%BB%A3%E7%A0%81%E9%9B%86%E6%88%90%E5%BC%80%E5%8F%91"></a>3、代码集成开发</h3>
+<p><a id="LC1" class="jop-noMdConv"></a>// 构建任务执行的线程池<br />
+<a id="LC2" class="jop-noMdConv"></a>AsyncTaskExecutor taskExecutor=new ThreadPoolTaskExecutor();<br />
+<a id="LC3" class="jop-noMdConv"></a>taskExecutor.setXXXX();</p>
+<p><a id="LC5" class="jop-noMdConv"></a>// 构造dbswitch所需的配置参数，参数说明请参考第三章第1小节<br />
+<a id="LC6" class="jop-noMdConv"></a>DbswichProperties properties = new DbswichProperties();<br />
+<a id="LC7" class="jop-noMdConv"></a>properties.setXXXX();</p>
+<p><a id="LC9" class="jop-noMdConv"></a>// 将参数传递给dbswitch启动同步方式执行<br />
+<a id="LC10" class="jop-noMdConv"></a>MigrationService service = new MigrationService(properties, taskExecutor);<br />
+<a id="LC11" class="jop-noMdConv"></a>service.run();</p>
+<h2 id="五-常见问题解决"><a id="user-content-五常见问题解决" class="jop-noMdConv"></a><a title="#%E4%BA%94%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3" href="#%E4%BA%94%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"></a>五、常见问题解决</h2>
+<h3 id="1-执行启动脚本报错"><a id="user-content-1执行启动脚本报错" class="jop-noMdConv"></a><a title="#1%E6%89%A7%E8%A1%8C%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC%E6%8A%A5%E9%94%99" href="#1%E6%89%A7%E8%A1%8C%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC%E6%8A%A5%E9%94%99"></a>1、执行启动脚本报错</h3>
+<ul>
+<li>（1）在Windows下，执行startup.cmd或datasync.cmd脚本报错</li>
+</ul>
+<blockquote>
+<p>解决办法：将脚本的内容复制后，删除原脚本文件，然后再创建一个同名脚本文件后，将原内容粘贴进去后，再执行脚本。</p>
+</blockquote>
+<ul>
+<li>（2）在Linux下，执行startup.sh或datasync.sh脚本报错</li>
+</ul>
+<blockquote>
+<p>解决办法：用vi/vim工具打开脚本，然后命令模式下设置 <code>set ff=unix</code>后，然后保存退出，再执行脚本。</p>
+</blockquote>
+<h2 id="六-文档博客"><a id="user-content-六文档博客" class="jop-noMdConv"></a><a title="#%E5%85%AD%E6%96%87%E6%A1%A3%E5%8D%9A%E5%AE%A2" href="#%E5%85%AD%E6%96%87%E6%A1%A3%E5%8D%9A%E5%AE%A2"></a>六、文档博客</h2>
+<p>（1）<a title="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F103739629" href="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F103739629">https://blog.csdn.net/inrgihc/article/details/103739629</a></p>
+<p>（2）<a title="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F104642238" href="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F104642238">https://blog.csdn.net/inrgihc/article/details/104642238</a></p>
+<p>（3）<a title="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F103932231" href="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F103932231">https://blog.csdn.net/inrgihc/article/details/103932231</a></p>
+<p>（4）<a title="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F103738656" href="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F103738656">https://blog.csdn.net/inrgihc/article/details/103738656</a></p>
+<p>（5）<a title="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F121447417" href="https://gitee.com/link?target=https%3A%2F%2Fblog.csdn.net%2Finrgihc%2Farticle%2Fdetails%2F121447417">https://blog.csdn.net/inrgihc/article/details/121447417</a></p>
+<h2 id="七-贡献参与"><a id="user-content-七贡献参与" class="jop-noMdConv"></a><a title="#%E4%B8%83%E8%B4%A1%E7%8C%AE%E5%8F%82%E4%B8%8E" href="#%E4%B8%83%E8%B4%A1%E7%8C%AE%E5%8F%82%E4%B8%8E"></a>七、贡献参与</h2>
+<p>为了能让项目得到更好的可持续的发展，dbswitch期望获得更多的代码开发爱好者参与代码贡献，具体可参见文档说明：<a title="https://gitee.com/inrgihc/dbswitch/blob/master/CONTRIBUTE.md" href="https://gitee.com/inrgihc/dbswitch/blob/master/CONTRIBUTE.md">贡献说明指南</a></p>
+<h2 id="八-问题反馈"><a id="user-content-八问题反馈" class="jop-noMdConv"></a><a title="#%E5%85%AB%E9%97%AE%E9%A2%98%E5%8F%8D%E9%A6%88" href="#%E5%85%AB%E9%97%AE%E9%A2%98%E5%8F%8D%E9%A6%88"></a>八、问题反馈</h2>
+<p>如果您看到并使用了本工具，或您觉得本工具对您有价值，请为此项目<strong>点个赞</strong>，以表示对本项目的支持，多谢！如果您在使用时遇到了bug，欢迎在issue中反馈。也可扫描下方二维码入群讨论：（加好友请注明："程序交流"）</p>
+<p><img src="/_resources/7f9a88bb8a054cd3b1abbd69e6b864a5.png" /></p>
+</div>
+      </article>
+    </div>
+  </body>
+</html>
